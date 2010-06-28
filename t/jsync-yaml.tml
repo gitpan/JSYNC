@@ -46,6 +46,15 @@ x: y
 - x
 - y
 
+=== Schwern's Escaping Test
++++ jsync
+{".!":"not a type","..!":"not an escaped type","foo":"42"}
++++ yaml
+---
+'!': not a type
+.!: not an escaped type
+foo: '42'
+
 === Globs
 +++ perl
 package main;
@@ -57,8 +66,11 @@ $foo = 'O HAI';
 
 === Dump Options
 +++ perl_run
-JSYNC::dump(['hello', 42, { goodbye => 43 }], {pretty => 1})
-+++ jsync_dump
+JSYNC::dump(
+    ['hello', 42, { goodbye => 43 }],
+    {pretty => 1}
+)
++++ jsync
 [
    "hello",
    "42",

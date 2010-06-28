@@ -28,6 +28,7 @@ META.yml
 README
 t/Bridge.pm
 t/dump.t
+t/jsync-roundtrip.tml
 t/jsync-yaml.tml
 t/load.t
-t/TestJSYNC.pm
+t/roundtrip.t
