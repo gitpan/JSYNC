@@ -14,10 +14,10 @@ inc/Test/Builder/Module.pm
 inc/Test/More.pm
 inc/TestML.pm
 inc/TestML/Base.pm
-inc/TestML/Bridge.pm
 inc/TestML/Document.pm
 inc/TestML/Parser.pm
 inc/TestML/Parser/Grammar.pm
+inc/TestML/Parser/Pegex.pm
 inc/TestML/Runner.pm
 inc/TestML/Runner/TAP.pm
 inc/TestML/Standard.pm

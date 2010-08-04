@@ -1,6 +1,4 @@
 #line 1
-# To Do:
-#
 package TestML;
 use strict;
 use warnings;
@@ -10,7 +8,7 @@ $TestML::VERSION = '0.03';
 
 sub import {
     my $run;
-    my $bridge;
+    my $bridge = 'main';
     my $document;
 
     if ($_[1] eq '-base') {
@@ -41,7 +39,7 @@ sub import {
             eval "require $run; 1" or die $@;
             $run->new(
                 document => ($document || \ *main::DATA),
-                bridge => ($bridge || 'TestML::Bridge'),
+                bridge => $bridge,
             )->run();
         }
         elsif ($document or $bridge) {
@@ -54,4 +52,4 @@ sub import {
 
 =encoding utf-8
 
-#line 139
+#line 137
