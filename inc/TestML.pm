@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.006001;
 
-$TestML::VERSION = '0.03';
+$TestML::VERSION = '0.06';
 
 sub import {
     my $run;

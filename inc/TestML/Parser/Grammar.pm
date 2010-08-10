@@ -1,22 +1,12 @@
 #line 1
 package TestML::Parser::Grammar;
-use base 'Parse::Pegex';
+use base 'Pegex::Grammar';
 use strict;
 use warnings;
 
-our $grammar = +{
-  'ALWAYS' => {
-    '+re' => qr/(?-xism:\G)/
-  },
-  'NO_META_TESTML_ERROR' => {
-    '+rule' => 'ALWAYS'
-  },
-  'SEMI' => {
-    '+re' => qr/(?-xism:\G;)/
-  },
-  'SEMICOLON_ERROR' => {
-    '+rule' => 'ALWAYS'
-  },
+sub grammar_tree {
+    return +{
+  '_FIRST_RULE' => 'document',
   'assertion_call' => {
     '+any' => [
       {
@@ -31,7 +21,7 @@ our $grammar = +{
     ]
   },
   'assertion_call_test' => {
-    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|#.*\r?\n)*|(?:[\ \t]|\r?\n|#.*\r?\n)*\.)(?:EQ|OK|HAS)\()/
+    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.)(?:EQ|OK|HAS)\()/
   },
   'assertion_eq' => {
     '+any' => [
@@ -46,7 +36,7 @@ our $grammar = +{
   'assertion_function_eq' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|#.*\r?\n)*|(?:[\ \t]|\r?\n|#.*\r?\n)*\.)EQ\()/
+        '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.)EQ\()/
       },
       {
         '+rule' => 'test_expression'
@@ -59,7 +49,7 @@ our $grammar = +{
   'assertion_function_has' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|#.*\r?\n)*|(?:[\ \t]|\r?\n|#.*\r?\n)*\.)HAS\()/
+        '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.)HAS\()/
       },
       {
         '+rule' => 'test_expression'
@@ -70,7 +60,7 @@ our $grammar = +{
     ]
   },
   'assertion_function_ok' => {
-    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|#.*\r?\n)*|(?:[\ \t]|\r?\n|#.*\r?\n)*\.)OK(?:\((?:[\ \t]|\r?\n|#.*\r?\n)*\))?)/
+    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.)OK(?:\((?:[\ \t]|\r?\n|\#.*\r?\n)*\))?)/
   },
   'assertion_has' => {
     '+any' => [
@@ -88,7 +78,7 @@ our $grammar = +{
   'assertion_operator_eq' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|#.*\r?\n)+==(?:[\ \t]|\r?\n|#.*\r?\n)+)/
+        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|\#.*\r?\n)+==(?:[\ \t]|\r?\n|\#.*\r?\n)+)/
       },
       {
         '+rule' => 'test_expression'
@@ -98,7 +88,7 @@ our $grammar = +{
   'assertion_operator_has' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|#.*\r?\n)+~~(?:[\ \t]|\r?\n|#.*\r?\n)+)/
+        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|\#.*\r?\n)+~~(?:[\ \t]|\r?\n|\#.*\r?\n)+)/
       },
       {
         '+rule' => 'test_expression'
@@ -146,10 +136,10 @@ our $grammar = +{
     ]
   },
   'call_indicator' => {
-    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|#.*\r?\n)*|(?:[\ \t]|\r?\n|#.*\r?\n)*\.))/
+    '+re' => qr/(?-xism:\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.))/
   },
   'comment' => {
-    '+re' => qr/(?-xism:\G#.*\r?\n)/
+    '+re' => qr/(?-xism:\G\#.*\r?\n)/
   },
   'core_transform' => {
     '+re' => qr/(?-xism:\G([A-Z]\w*))/
@@ -234,7 +224,7 @@ our $grammar = +{
   'meta_section' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G(?:#.*\r?\n|[\ \t]*\r?\n)*)/
+        '+re' => qr/(?-xism:\G(?:\#.*\r?\n|[\ \t]*\r?\n)*)/
       },
       {
         '+any' => [
@@ -242,7 +232,7 @@ our $grammar = +{
             '+rule' => 'meta_testml_statement'
           },
           {
-            '+rule' => 'NO_META_TESTML_ERROR'
+            '+error' => 'No TestML meta directive found'
           }
         ]
       },
@@ -263,10 +253,10 @@ our $grammar = +{
     ]
   },
   'meta_statement' => {
-    '+re' => qr/(?-xism:\G%((?:(?:Title|Data|Plan|BlockMarker|PointMarker)|[a-z]\w*)):[\ \t]+((?:(?:'(([^\n\\']|\\'|\\\\)*?)')|(?:"(([^\n\\"]|\\"|\\\\|\\[0nt])*?)")|([^\ \t\n#](?:[^\n#]*[^\ \t\n#])?)))(?:[\ \t]+#.*\r?\n|\r?\n))/
+    '+re' => qr/(?-xism:\G%((?:(?:Title|Data|Plan|BlockMarker|PointMarker)|[a-z]\w*)):[\ \t]+((?:(?:'(([^\n\\']|\\'|\\\\)*?)')|(?:"(([^\n\\"]|\\"|\\\\|\\[0nt])*?)")|([^\ \t\n\#](?:[^\n\#]*[^\ \t\n\#])?)))(?:[\ \t]+\#.*\r?\n|\r?\n))/
   },
   'meta_testml_statement' => {
-    '+re' => qr/(?-xism:\G%TestML:[\ \t]+(([0-9]\.[0-9]+))(?:[\ \t]+#.*\r?\n|\r?\n))/
+    '+re' => qr/(?-xism:\G%TestML:[\ \t]+(([0-9]\.[0-9]+))(?:[\ \t]+\#.*\r?\n|\r?\n))/
   },
   'phrase_point' => {
     '+all' => [
@@ -289,7 +279,7 @@ our $grammar = +{
         '+re' => qr/(?-xism:\G\r?\n)/
       },
       {
-        '+re' => qr/(?-xism:\G(?:#.*\r?\n|[\ \t]*\r?\n)*)/
+        '+re' => qr/(?-xism:\G(?:\#.*\r?\n|[\ \t]*\r?\n)*)/
       }
     ]
   },
@@ -306,7 +296,7 @@ our $grammar = +{
     '+re' => qr/(?-xism:\G([a-z]\w*))/
   },
   'point_phrase' => {
-    '+re' => qr/(?-xism:\G(([^\ \t\n#](?:[^\n#]*[^\ \t\n#])?)))/
+    '+re' => qr/(?-xism:\G(([^\ \t\n\#](?:[^\n\#]*[^\ \t\n\#])?)))/
   },
   'quoted_string' => {
     '+any' => [
@@ -381,10 +371,10 @@ our $grammar = +{
       {
         '+any' => [
           {
-            '+rule' => 'SEMI'
+            '+re' => qr/(?-xism:\G;)/
           },
           {
-            '+rule' => 'SEMICOLON_ERROR'
+            '+error' => 'You seem to be missing a semicolon'
           }
         ]
       }
@@ -400,14 +390,14 @@ our $grammar = +{
   'transform_argument_list' => {
     '+all' => [
       {
-        '+re' => qr/(?-xism:\G\((?:[\ \t]|\r?\n|#.*\r?\n)*)/
+        '+re' => qr/(?-xism:\G\((?:[\ \t]|\r?\n|\#.*\r?\n)*)/
       },
       {
         '+rule' => 'transform_arguments',
         '<' => '?'
       },
       {
-        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|#.*\r?\n)*\))/
+        '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|\#.*\r?\n)*\))/
       }
     ]
   },
@@ -419,7 +409,7 @@ our $grammar = +{
       {
         '+all' => [
           {
-            '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|#.*\r?\n)*,(?:[\ \t]|\r?\n|#.*\r?\n)*)/
+            '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|\#.*\r?\n)*,(?:[\ \t]|\r?\n|\#.*\r?\n)*)/
           },
           {
             '+rule' => 'transform_argument'
@@ -451,13 +441,13 @@ our $grammar = +{
     ]
   },
   'unquoted_string' => {
-    '+re' => qr/(?-xism:\G([^\ \t\n#](?:[^\n#]*[^\ \t\n#])?))/
+    '+re' => qr/(?-xism:\G([^\ \t\n\#](?:[^\n\#]*[^\ \t\n\#])?))/
   },
   'user_transform' => {
     '+re' => qr/(?-xism:\G([a-z]\w*))/
   },
   'ws' => {
-    '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|#.*\r?\n))/
+    '+re' => qr/(?-xism:\G(?:[\ \t]|\r?\n|\#.*\r?\n))/
   },
   'xml_data_section' => {
     '+re' => qr/(?-xism:\G(<.+))/
@@ -466,9 +456,6 @@ our $grammar = +{
     '+re' => qr/(?-xism:\G(---[\ \t]*\r?\n.+))/
   }
 };
-
-sub grammar {
-    return $grammar;
 }
 
 1;
