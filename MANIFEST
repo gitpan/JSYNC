@@ -10,7 +10,6 @@ inc/Module/Install/TestML.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/Pegex/Base.pm
-inc/Pegex/Gloom.pm
 inc/Pegex/Grammar.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
@@ -18,7 +17,6 @@ inc/Test/More.pm
 inc/TestML.pm
 inc/TestML/Base.pm
 inc/TestML/Document.pm
-inc/TestML/Gloom.pm
 inc/TestML/Parser.pm
 inc/TestML/Parser/Grammar.pm
 inc/TestML/Runner.pm

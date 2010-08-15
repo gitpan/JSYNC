@@ -3,85 +3,107 @@ package TestML::Standard;
 use strict;
 use warnings;
 
-sub Select {
-    return (shift)->value;
-}
-
 sub Point {
-    my $this = shift;
+    my $context = shift;
     my $name = shift;
-    $this->point($name);
-    my $value = $this->block->points->{$name};
+    $context->point($name);
+    my $value = $context->block->points->{$name};
     if ($value =~ s/\n+\z/\n/ and $value eq "\n") {
         $value = '';
     }
-    return $value;
-}
-
-sub Raw {
-    my $this = shift;
-    my $point = $this->point
-        or die "Raw called but there is no point";
-    return $this->block->points->{$point};
+    $context->set(Str => $value);
 }
 
 sub Catch {
-    my $this = shift;
-    my $error = $this->error
+    my $context = shift;
+    my $error = $context->error
         or die "Catch called but no TestML error found";
     $error =~ s/ at .* line \d+\.\n\z//;
-    $this->error(undef);
-    return $error;
+    $context->error(undef);
+    $context->set(Str => $error);
 }
 
 sub Throw {
-    my $this = shift;
-    my $msg = @_ ? (shift)->value : $this->value
+    my $context = shift;
+    my $msg = @_ ? (shift)->value : $context->value
       or die "Throw called without an error msg";
     die $msg;
 }
 
-sub String {
-    my $this = shift;
-    my $string =
-    (defined $this->value) ? $this->value :
-    @_ ? ref($_[0]) ? (shift)->value : (shift) :
-    $this->raise(
-        'StandardLibraryException',
-        'String transform called but no string available'
-    );
-    return $string;
+sub Str {
+    my $context = shift;
+    $context->set(Str => $context->get_string);
+}
+
+sub Bool {
+    my $context = shift;
+    my $value = $context->value ? 1 : 0;
+    $context->set(Bool => $value);
+}
+
+sub Num {
+    my $context = shift;
+    my $value = 0 + $context->value;
+    $context->set(Num => $value);
+}
+
+sub True {
+    my $context = shift;
+    $context->set(Bool => 1);
+}
+
+sub False {
+    my $context = shift;
+    $context->set(Bool => 0);
 }
 
 sub BoolStr {
-    return (shift)->value ? 'True' : 'False';
-}
-
-sub List {
-    return [ split /\n/, (shift)->value ];
+    my $context = shift;
+    return $context->value ? 'True' : 'False';
 }
 
 sub Join {
-    my $list = (shift)->value;
+    my $context = shift;
+    my $value = $context->get_type('List');
     my $string = @_ ? (shift)->value : '';
-    return join $string, @$list;
+    $context->set(Str => join $string, @$value);
 }
 
 sub Reverse {
-    my $list = (shift)->value;
-    return [ reverse @$list ];
+    my $context = shift;
+    my $value = $context->get_type('List');
+    return [ reverse @$value ];
 }
 
 sub Sort {
-    my $list = (shift)->value;
-    return [ sort @$list ];
+    my $context = shift;
+    my $value = $context->get_type('List');
+    return [ sort @$value ];
 }
 
-sub Item {
-    my $list = (shift)->value;
-    return join("\n", (@$list, ''));
+sub Chomp {
+    my $context = shift;
+    my $value = $context->get_type('Str');
+    chomp($value);
+    return $value;
 }
 
+sub Text {
+    my $context = shift;
+    my $value = $context->get_type('List');
+    $context->set(Str => join "\n", @$value, '');
+}
+
+sub Lines {
+    my $context = shift;
+    my $value = $context->value || '';
+    $value = [ split /\n/, $value ];
+    $context->set(List => $value);
+}
+
+1;
+
+__END__
 sub Union {
     my $list = (shift)->value;
     # my $list2 = shift;
@@ -96,10 +118,14 @@ sub Unique {
     return [ @$list, @$list2 ];
 }
 
-sub Chomp {
-    my $string = (shift)->value;
-    chomp($string);
-    return $string;
+sub Raw {
+    my $context = shift;
+    my $point = $context->point
+        or die "Raw called but there is no point";
+    return $context->block->points->{$point};
 }
 
-1;
+sub Select {
+    return (shift)->value;
+}
+

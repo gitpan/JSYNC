@@ -16,8 +16,6 @@ sub use_testml_tap {
 
     $self->use_testml;
      
-    $self->include('TestML::Runner::TAP');
-
     $self->include('Test::More');
     $self->include('Test::Builder');
     $self->include('Test::Builder::Module');
@@ -29,7 +27,6 @@ sub use_testml {
 
     $self->include('TestML');
     $self->include('TestML::Base');
-    $self->include('TestML::Gloom');
     $self->include('TestML::Document');
     $self->include('TestML::Parser');
     $self->include('TestML::Parser::Grammar');
@@ -38,11 +35,10 @@ sub use_testml {
     $self->include('TestML::Standard');
     $self->include('Pegex::Grammar');
     $self->include('Pegex::Base');
-    $self->include('Pegex::Gloom');
 }
 
 1;
 
 =encoding utf8
 
-#line 89
+#line 85

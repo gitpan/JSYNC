@@ -31,12 +31,19 @@ sub run {
                 $statement->expression,
                 $block,
             );
-            if ($statement->assertion) {
-                my $right = $self->evaluate_expression(
-                    $statement->assertion->expression,
-                    $block,
-                );
-                $self->EQ($left, $right, $block->label);
+            if (my $assertion = $statement->assertion) {
+                my $method = 'assert_' . $assertion->name;
+                # TODO - Should check 
+                if (@{$assertion->expression->transforms}) {
+                    my $right = $self->evaluate_expression(
+                        $assertion->expression,
+                        $block,
+                    );
+                    $self->$method($left, $right, $block->label);
+                }
+                else {
+                    $self->$method($left, $block->label);
+                }
             }
         }
     }
@@ -73,12 +80,23 @@ sub evaluate_expression {
     my $context = TestML::Context->new(
         document => $self->doc,
         block => $block,
+        not => 0,
+        type => 'None',
     );
 
     for my $transform (@{$expression->transforms}) {
         my $transform_name = $transform->name;
-        next if $context->error and $transform_name ne 'Catch';
+        next if $context->type eq 'Error' and $transform_name ne 'Catch';
+        if (ref($transform) eq 'TestML::String') {
+            $context->set(Str => $transform->value);
+            next;
+        }
+        if ($transform_name eq 'Not') {
+            $context->not($context->not ? 0 : 1);
+            next;
+        }
         my $function = $self->get_transform_function($transform_name);
+        $context->_set(0);
         my $value = eval {
             &$function(
                 $context,
@@ -90,10 +108,11 @@ sub evaluate_expression {
             );
         };
         if ($@) {
+            $context->type('Error');
             $context->error($@);
             $context->value(undef);
         }
-        else {
+        elsif (not $context->_set) {
             $context->value($value);
         }
     }
@@ -179,5 +198,49 @@ has 'block';
 has 'point';
 has 'value';
 has 'error';
+has 'type';
+has 'not';
+has '_set';
+
+sub set {
+    my $self = shift;
+    my $type = shift;
+    my $value = shift;
+    $self->throw("Invalid context type '$type'")
+        unless $type =~ /^(?:None|Str|Num|Bool|List)$/;
+    $self->type($type);
+    $self->value($value);
+    $self->_set(1);
+}
+
+sub get_type {
+    my $self = shift;
+    my $type = $self->type;
+    return $self->value if grep $type eq $_, @_;
+    $self->throw("context object is type '$type', but '@_' required");
+}
+
+sub get_string {
+    my $self = shift;
+    my $type = $self->type;
+    my $value = $self->value;
+    return
+        $type eq 'Str' ? $value :
+        $type eq 'List' ? join("\n", @$value, '') :
+        $type eq 'Bool' ? ($self->truth ? '1' : '') :
+        $type eq 'Num' ? "$value" :
+        $type eq 'None' ? '' :
+        $self->throw("Str type error: '$type'");
+}
+
+sub truth {
+    my $self = shift;
+    return !!$self->value;
+}
+
+sub throw {
+    require Carp;
+    Carp::croak $_[1];
+}
 
 1;

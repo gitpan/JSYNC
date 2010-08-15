@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use 5.006001;
 
-$TestML::VERSION = '0.06';
+$TestML::VERSION = '0.10';
 
 sub import {
     my $run;
     my $bridge = 'main';
     my $document;
 
-    if ($_[1] eq '-base') {
+    if (@_ > 1 and $_[1] eq '-base') {
         goto &TestML::Base::import;
     }
 
@@ -52,4 +52,4 @@ sub import {
 
 =encoding utf-8
 
-#line 137
+#line 148
