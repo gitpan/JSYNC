@@ -1,35 +1,14 @@
 #line 1
-#line 1
-### Gloom - the Great Little OO Module!
-### Read `perldoc Gloom::Doc` for more information.
+### This module was derived from Gloom - the Great Little OO Module!
+### Read `perldoc Gloom` for more information.
 
+package TestML::Base;
+
+use 5.008003;
 use strict;
 use warnings;
 
-$Gloom::VERSION = '0.10';
-
-my $code = do { local $/; <DATA> };
-my $file = __FILE__;
-my $ok = 1;
-my $package =
-    join '::',
-    reverse
-    grep { $ok and (/^[A-Z]/ or do {$ok = 0}) }
-    reverse
-    split /[\/\\]/, $file;
-$package =~ s/\.pm//;
-
-eval <<"...";
-package $package;
-$code
-...
-die $@ if $@;
-
-1;
-
-__DATA__
-use strict;
-use warnings;
+our $VERSION = '0.14';
 
 sub import {
     my ($class, $flag) = @_;
@@ -205,14 +184,13 @@ sub has {
     return $code if defined wantarray;
 }
 
+our $DumpModule = 'YAML::XS';
+sub WWW { require XXX; local $XXX::DumpModule = $DumpModule; XXX::WWW(@_) }
+sub XXX { require XXX; local $XXX::DumpModule = $DumpModule; XXX::XXX(@_) }
+sub YYY { require XXX; local $XXX::DumpModule = $DumpModule; XXX::YYY(@_) }
+sub ZZZ { require XXX; local $XXX::DumpModule = $DumpModule; XXX::ZZZ(@_) }
+
 sub EXPORT_BASE {
-    return (
-        __PACKAGE__ . '::has',
-    );
+    return map { __PACKAGE__ . '::' .$_ }
+        qw(has WWW XXX YYY ZZZ);
 }
-
-1;
-
-=encoding utf-8
-
-#line 239

@@ -16,12 +16,12 @@ inc/Test/Builder/Module.pm
 inc/Test/More.pm
 inc/TestML.pm
 inc/TestML/Base.pm
-inc/TestML/Document.pm
-inc/TestML/Parser.pm
-inc/TestML/Parser/Grammar.pm
-inc/TestML/Runner.pm
-inc/TestML/Runner/TAP.pm
-inc/TestML/Standard.pm
+inc/TestML/Compiler.pm
+inc/TestML/Grammar.pm
+inc/TestML/Library/Debug.pm
+inc/TestML/Library/Standard.pm
+inc/TestML/Runtime.pm
+inc/TestML/Runtime/TAP.pm
 lib/JSYNC.pm
 Makefile.PL
 MANIFEST			This list of files
