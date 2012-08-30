@@ -3,11 +3,12 @@ abstract: 'JSON YAML Notation Coding'
 author:
   - 'Ingy döt Net <ingy@ingy.net>'
 build_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
 distribution_type: module
-generated_by: 'Module::Install version 1.01'
+dynamic_config: 1
+generated_by: 'Module::Install version 1.06'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,7 +23,10 @@ requires:
   JSON: 2.53
   perl: 5.8.3
 resources:
-  homepage: http://github.com/ingydotnet/jsync-pm/tree
+  homepage: https://github.com/ingydotnet/jsync-pm/tree
   license: http://dev.perl.org/licenses/
-  repository: git://github.com/ingydotnet/jsync-pm.git
-version: 0.13
+  repository:
+    type: git
+    url: git://github.com/ingydotnet/jsync-pm.git
+    web: https://github.com/ingydotnet/jsync-pm/tree
+version: 0.14
