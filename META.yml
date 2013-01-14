@@ -1,5 +1,5 @@
 ---
-abstract: 'JSON YAML Notation Coding'
+abstract: 'JSon Yaml eNCoding'
 author:
   - 'Ingy döt Net <ingy@ingy.net>'
 build_requires:
@@ -29,4 +29,4 @@ resources:
     type: git
     url: git://github.com/ingydotnet/jsync-pm.git
     web: https://github.com/ingydotnet/jsync-pm/tree
-version: 0.14
+version: 0.15
