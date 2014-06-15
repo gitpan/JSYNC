@@ -1,11 +1,3 @@
-#line 1
-##
-# name:      Pegex::Grammar
-# abstract:  Pegex Grammar Base Class
-# author:    Ingy döt Net <ingy@cpan.org>
-# license:   perl
-# copyright: 2010, 2011, 2012
-
 package Pegex::Grammar;
 use Pegex::Base;
 
@@ -20,6 +12,7 @@ has tree => (
     builder => 'make_tree',
     lazy => 1,
 );
+has start_rules => [];
 
 sub make_text {
     my ($self) = @_;
@@ -36,7 +29,10 @@ sub make_tree {
         or die "Can't create a '" . ref($self) .
             "' grammar. No tree or text or file.";
     require Pegex::Compiler;
-    return Pegex::Compiler->new->compile($text)->tree;
+    return Pegex::Compiler->new->compile(
+        $text,
+        @{$self->start_rules || []}
+    )->tree;
 }
 
 # This import is to support: perl -MPegex::Grammar::Module=compile
@@ -78,8 +74,19 @@ sub compile_into_module {
     $module =~ s!::!/!g;
     $module = "$module.pm";
     my $file = $INC{$module} or return;
-    require Pegex::Compiler;
-    my $perl = Pegex::Compiler->new->compile($grammar_text)->to_perl;
+    my $perl;
+    my @rules;
+    if ($package->can('start_rules')) {
+        @rules = @{$package->start_rules || []};
+    }
+    if ($module eq 'Pegex/Pegex/Grammar.pm') {
+        require Pegex::Bootstrap;
+        $perl = Pegex::Bootstrap->new->compile($grammar_text, @rules)->to_perl;
+    }
+    else {
+        require Pegex::Compiler;
+        $perl = Pegex::Compiler->new->compile($grammar_text, @rules)->to_perl;
+    }
     open IN, $file or die $!;
     my $module_text = do {local $/; <IN>};
     close IN;
@@ -91,4 +98,3 @@ sub compile_into_module {
 }
 
 1;
-

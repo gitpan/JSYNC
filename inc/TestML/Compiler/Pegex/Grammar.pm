@@ -1,13 +1,19 @@
-#line 1
-package TestML::Grammar;
-use TestML::Mo;
+package TestML::Compiler::Pegex::Grammar;
+
+use TestML::Base;
 extends 'Pegex::Grammar';
 
 use constant file => '../testml-pgx/testml.pgx';
 
 sub make_tree {
   {
+    '+grammar' => 'testml',
+    '+include' => 'atom',
     '+toprule' => 'testml_document',
+    '+version' => '0.0.1',
+    '__' => {
+      '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)+/
+    },
     'assertion_call' => {
       '.any' => [
         {
@@ -115,12 +121,15 @@ sub make_tree {
           '.ref' => 'code_expression'
         },
         {
-          '.ref' => 'semicolon'
+          '.ref' => 'ending'
         }
       ]
     },
     'blank_line' => {
       '.rgx' => qr/\G[\ \t]*\r?\n/
+    },
+    'blanks' => {
+      '.rgx' => qr/\G[\ \t]+/
     },
     'block_header' => {
       '.all' => [
@@ -131,7 +140,7 @@ sub make_tree {
           '+max' => 1,
           '.all' => [
             {
-              '.rgx' => qr/\G[\ \t]+/
+              '.ref' => 'blanks'
             },
             {
               '.ref' => 'block_label'
@@ -139,7 +148,7 @@ sub make_tree {
           ]
         },
         {
-          '.rgx' => qr/\G[\ \t]*\r?\n/
+          '.ref' => 'blank_line'
         }
       ]
     },
@@ -159,8 +168,76 @@ sub make_tree {
         }
       ]
     },
+    'call_argument' => {
+      '.ref' => 'code_expression'
+    },
+    'call_argument_list' => {
+      '.all' => [
+        {
+          '.rgx' => qr/\G\((?:[\ \t]|\r?\n|\#.*\r?\n)*/
+        },
+        {
+          '+max' => 1,
+          '.all' => [
+            {
+              '.ref' => 'call_argument'
+            },
+            {
+              '+min' => 0,
+              '-flat' => 1,
+              '.all' => [
+                {
+                  '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*,(?:[\ \t]|\r?\n|\#.*\r?\n)*/
+                },
+                {
+                  '.ref' => 'call_argument'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*\)/
+        }
+      ]
+    },
+    'call_call' => {
+      '.all' => [
+        {
+          '+asr' => -1,
+          '.ref' => 'assertion_call_test'
+        },
+        {
+          '.ref' => 'call_indicator'
+        },
+        {
+          '.ref' => 'code_object'
+        }
+      ]
+    },
     'call_indicator' => {
       '.rgx' => qr/\G(?:\.(?:[\ \t]|\r?\n|\#.*\r?\n)*|(?:[\ \t]|\r?\n|\#.*\r?\n)*\.)/
+    },
+    'call_name' => {
+      '.any' => [
+        {
+          '.ref' => 'user_call'
+        },
+        {
+          '.ref' => 'core_call'
+        }
+      ]
+    },
+    'call_object' => {
+      '.all' => [
+        {
+          '.ref' => 'call_name'
+        },
+        {
+          '+max' => 1,
+          '.ref' => 'call_argument_list'
+        }
+      ]
     },
     'code_expression' => {
       '.all' => [
@@ -169,7 +246,7 @@ sub make_tree {
         },
         {
           '+min' => 0,
-          '.ref' => 'unit_call'
+          '.ref' => 'call_call'
         }
       ]
     },
@@ -188,7 +265,7 @@ sub make_tree {
           '.ref' => 'number_object'
         },
         {
-          '.ref' => 'transform_object'
+          '.ref' => 'call_object'
         }
       ]
     },
@@ -196,7 +273,7 @@ sub make_tree {
       '+min' => 0,
       '.any' => [
         {
-          '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)+/
+          '.ref' => '__'
         },
         {
           '.ref' => 'assignment_statement'
@@ -216,14 +293,14 @@ sub make_tree {
           '.ref' => 'assertion_call'
         },
         {
-          '.ref' => 'semicolon'
+          '.ref' => 'ending'
         }
       ]
     },
     'comment' => {
       '.rgx' => qr/\G\#.*\r?\n/
     },
-    'core_transform' => {
+    'core_call' => {
       '.rgx' => qr/\G([A-Z]\w*)/
     },
     'data_block' => {
@@ -256,6 +333,20 @@ sub make_tree {
     'double_quoted_string' => {
       '.rgx' => qr/\G(?:"((?:[^\n\\"]|\\"|\\\\|\\[0nt])*?)")/
     },
+    'ending' => {
+      '.any' => [
+        {
+          '.rgx' => qr/\G(?:;|\r?\n)/
+        },
+        {
+          '+asr' => 1,
+          '.ref' => 'ending2'
+        }
+      ]
+    },
+    'ending2' => {
+      '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*\}/
+    },
     'function_object' => {
       '.all' => [
         {
@@ -269,7 +360,7 @@ sub make_tree {
           '+min' => 0,
           '.any' => [
             {
-              '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)+/
+              '.ref' => '__'
             },
             {
               '.ref' => 'assignment_statement'
@@ -305,11 +396,23 @@ sub make_tree {
       '.rgx' => qr/\G([a-zA-Z]\w*)/
     },
     'function_variables' => {
-      '+min' => 1,
-      '.ref' => 'function_variable',
-      '.sep' => {
-        '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*,(?:[\ \t]|\r?\n|\#.*\r?\n)*/
-      }
+      '.all' => [
+        {
+          '.ref' => 'function_variable'
+        },
+        {
+          '+min' => 0,
+          '-flat' => 1,
+          '.all' => [
+            {
+              '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*,(?:[\ \t]|\r?\n|\#.*\r?\n)*/
+            },
+            {
+              '.ref' => 'function_variable'
+            }
+          ]
+        }
+      ]
     },
     'lines_point' => {
       '.all' => [
@@ -317,13 +420,13 @@ sub make_tree {
           '.ref' => 'point_marker'
         },
         {
-          '.rgx' => qr/\G[\ \t]+/
+          '.ref' => 'blanks'
         },
         {
           '.ref' => 'point_name'
         },
         {
-          '.rgx' => qr/\G[\ \t]*\r?\n/
+          '.ref' => 'blank_line'
         },
         {
           '.ref' => 'point_lines'
@@ -342,7 +445,7 @@ sub make_tree {
           '.ref' => 'point_marker'
         },
         {
-          '.rgx' => qr/\G[\ \t]+/
+          '.ref' => 'blanks'
         },
         {
           '.ref' => 'point_name'
@@ -386,16 +489,6 @@ sub make_tree {
         }
       ]
     },
-    'semicolon' => {
-      '.any' => [
-        {
-          '.rgx' => qr/\G;/
-        },
-        {
-          '.err' => 'You seem to be missing a semicolon'
-        }
-      ]
-    },
     'single_quoted_string' => {
       '.rgx' => qr/\G(?:'((?:[^\n\\']|\\'|\\\\)*?)')/
     },
@@ -413,65 +506,10 @@ sub make_tree {
         }
       ]
     },
-    'transform_argument' => {
-      '.ref' => 'code_expression'
-    },
-    'transform_argument_list' => {
-      '.all' => [
-        {
-          '.rgx' => qr/\G\((?:[\ \t]|\r?\n|\#.*\r?\n)*/
-        },
-        {
-          '+min' => 0,
-          '.ref' => 'transform_argument',
-          '.sep' => {
-            '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*,(?:[\ \t]|\r?\n|\#.*\r?\n)*/
-          }
-        },
-        {
-          '.rgx' => qr/\G(?:[\ \t]|\r?\n|\#.*\r?\n)*\)/
-        }
-      ]
-    },
-    'transform_name' => {
-      '.any' => [
-        {
-          '.ref' => 'user_transform'
-        },
-        {
-          '.ref' => 'core_transform'
-        }
-      ]
-    },
-    'transform_object' => {
-      '.all' => [
-        {
-          '.ref' => 'transform_name'
-        },
-        {
-          '+max' => 1,
-          '.ref' => 'transform_argument_list'
-        }
-      ]
-    },
-    'unit_call' => {
-      '.all' => [
-        {
-          '+asr' => -1,
-          '.ref' => 'assertion_call_test'
-        },
-        {
-          '.ref' => 'call_indicator'
-        },
-        {
-          '.ref' => 'code_object'
-        }
-      ]
-    },
     'unquoted_string' => {
       '.rgx' => qr/\G([^\ \t\n\#](?:[^\n\#]*[^\ \t\n\#])?)/
     },
-    'user_transform' => {
+    'user_call' => {
       '.rgx' => qr/\G([a-z]\w*)/
     },
     'variable_name' => {
@@ -479,3 +517,5 @@ sub make_tree {
     }
   }
 }
+
+1;

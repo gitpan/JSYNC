@@ -1,5 +1,15 @@
-use TestML -run,
-    -require_or_skip => 'JSON',
-    -require_or_skip => 'YAML::XS',
-    -bridge => 't::Bridge',
-    -testml => 'testml/dump.tml';
+use File::Basename;
+use lib dirname(__FILE__), 'inc';
+
+{
+    use Test::More;
+    eval "use YAML::XS; 1" or plan skip_all => 'YAML::XS required';
+}
+
+use TestML;
+use TestMLBridge;
+
+TestML->new(
+    testml => 'testml/dump.tml',
+    bridge => 'TestMLBridge',
+)->run;

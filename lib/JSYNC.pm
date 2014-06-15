@@ -1,22 +1,7 @@
-##
-# name:      JSYNC
-# abstract:  JSon Yaml eNCoding
-# author:    Ingy döt Net <ingy@ingy.net>
-# license:   perl
-# copyright: 2010, 2011, 2012, 2013
-# see:
-# - http://www.jsync.org/
-# - JSON
-# - YAML
-# - irc.freenode.net#jsync
-
-use 5.008003;
 use strict; use warnings;
 package JSYNC;
-
-use JSON 2.53;
-
-our $VERSION = '0.15';
+$JSYNC::VERSION = '0.16';
+use JSON;
 
 {
     package JSYNC;
@@ -54,8 +39,8 @@ our $VERSION = '0.15';
 
 {
     package JSYNC::Dumper;
-
-    sub new { bless { @_[1..$#_] }, $_[0] }
+$JSYNC::Dumper::VERSION = '0.16';
+sub new { bless { @_[1..$#_] }, $_[0] }
 
     sub dump {
         my ($self, $object) = @_;
@@ -162,8 +147,8 @@ our $VERSION = '0.15';
 
 {
     package JSYNC::Loader;
-
-    sub new { bless { @_[1..$#_] }, $_[0] }
+$JSYNC::Loader::VERSION = '0.16';
+sub new { bless { @_[1..$#_] }, $_[0] }
 
     sub load {
         my ($self, $jsync) = @_;
@@ -234,15 +219,3 @@ our $VERSION = '0.15';
 };
 
 1;
-
-=head1 SYNOPSIS
-
-    use JSYNC;
-
-    my $object = <any perl expression>
-    my $jsync = JSYNC::dump($object, {pretty => 1});
-    $object = JSYNC::load($jsync);
-
-=head1 DESCRIPTION
-
-JSYNC is an extension of JSON that can serialize any data objects.

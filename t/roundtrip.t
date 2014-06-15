@@ -1,4 +1,10 @@
-use TestML -run,
-    -require_or_skip => 'JSON',
-    -bridge => 't::Bridge',
-    -testml => 'testml/roundtrip.tml';
+use File::Basename;
+use lib dirname(__FILE__), 'inc';
+
+use TestML;
+use TestMLBridge;
+
+TestML->new(
+    testml => 'testml/roundtrip.tml',
+    bridge => 'TestMLBridge',
+)->run;
