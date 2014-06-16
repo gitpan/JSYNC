@@ -1,6 +1,7 @@
 use strict; use warnings;
 package JSYNC;
-$JSYNC::VERSION = '0.16';
+our $VERSION = '0.17';
+
 use JSON;
 
 {
@@ -39,8 +40,8 @@ use JSON;
 
 {
     package JSYNC::Dumper;
-$JSYNC::Dumper::VERSION = '0.16';
-sub new { bless { @_[1..$#_] }, $_[0] }
+
+    sub new { bless { @_[1..$#_] }, $_[0] }
 
     sub dump {
         my ($self, $object) = @_;
@@ -147,8 +148,8 @@ sub new { bless { @_[1..$#_] }, $_[0] }
 
 {
     package JSYNC::Loader;
-$JSYNC::Loader::VERSION = '0.16';
-sub new { bless { @_[1..$#_] }, $_[0] }
+
+    sub new { bless { @_[1..$#_] }, $_[0] }
 
     sub load {
         my ($self, $jsync) = @_;

@@ -17,6 +17,7 @@ no_index:
     - inc
     - t
     - xt
+    - example
 requires:
   JSON: '0'
   perl: v5.8.1
@@ -24,4 +25,4 @@ resources:
   bugtracker: https://github.com/ingydotnet/jsync-pm/issues
   homepage: https://github.com/ingydotnet/jsync-pm
   repository: https://github.com/ingydotnet/jsync-pm.git
-version: '0.16'
+version: '0.17'
