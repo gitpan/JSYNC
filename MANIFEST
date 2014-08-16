@@ -45,4 +45,3 @@ t/testml/jsync-roundtrip.tml
 t/testml/jsync-yaml.tml
 t/testml/load.tml
 t/testml/roundtrip.tml
-t/use_ok.t
