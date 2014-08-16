@@ -32,6 +32,7 @@ inc/TestML/Runtime/TAP.pm
 inc/TestML/Util.pm
 lib/JSYNC.pm
 lib/JSYNC.pod
+t/000-compile-modules.t
 t/TestMLBridge.pm
 t/dump.t
 t/load.t
