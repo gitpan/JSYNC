@@ -1,3 +1,6 @@
+0.22 Sat Aug 16 02:15:47 PDT 2014
+ - Eliminate File::Basename from test/
+
 0.21 Fri Aug 15 21:20:35 PDT 2014
  - Remove t/use_ok.t
 
